@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,24 +77,64 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text("ログアウト"),
               ),
             if (!_isLogin)
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    final userCredential = await _auth.signInAnonymously();
-                  } on FirebaseAuthException catch (e) {
-                    print(e);
-                    print(e.code);
-                    print(e.message);
-                  } finally {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  }
-                },
-                child: Text("ログイン"),
+              Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        final userCredential = await _auth.signInAnonymously();
+                      } on FirebaseAuthException catch (e) {
+                        print(e);
+                        print(e.code);
+                        print(e.message);
+                      } finally {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
+                    },
+                    child: Text("ログイン"),
+                  ),
+                  ElevatedButton(
+                    child: Text("googleログイン"),
+                    onPressed: () async {
+                      try {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        // Trigger the authentication flow
+                        final GoogleSignInAccount? googleUser =
+                            await GoogleSignIn().signIn();
+
+                        // Obtain the auth details from the request
+                        final GoogleSignInAuthentication? googleAuth =
+                            await googleUser?.authentication;
+
+                        // Create a new credential
+                        final credential = GoogleAuthProvider.credential(
+                          accessToken: googleAuth?.accessToken,
+                          idToken: googleAuth?.idToken,
+                        );
+
+                        // Once signed in, return the UserCredential
+                        final userCredential = await FirebaseAuth.instance
+                            .signInWithCredential(credential);
+                        // final userCredential = await _auth.signInAnonymously();
+                      } on FirebaseAuthException catch (e) {
+                        print(e);
+                        print(e.code);
+                        print(e.message);
+                      } finally {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
+                    },
+                  ),
+                ],
               ),
           ],
         ),
