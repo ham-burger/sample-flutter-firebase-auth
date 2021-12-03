@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sampleflutterfirebaseauth/samples_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,17 +65,32 @@ class _MyHomePageState extends State<MyHomePage> {
             //   'You have pushed the button this many times:',
             // ),
             if (_isLogin)
-              OutlinedButton(
-                onPressed: () async {
-                  setState(() {
-                    _isLoading = true;
-                  });
-                  await _auth.signOut();
-                  setState(() {
-                    _isLoading = false;
-                  });
-                },
-                child: Text("ログアウト"),
+              Column(
+                children: [
+                  OutlinedButton(
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      await _auth.signOut();
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                    child: Text("ログアウト"),
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return SamplesScreen();
+                            },
+                          ),
+                        );
+                      },
+                      child: Text("firestoreデータを参照する"))
+                ],
               ),
             if (!_isLogin)
               Column(
