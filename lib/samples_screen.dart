@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +12,9 @@ class SamplesScreen extends StatefulWidget {
 }
 
 class _SamplesScreenState extends State<SamplesScreen> {
+  CollectionReference _samples =
+      FirebaseFirestore.instance.collection('samples');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +26,19 @@ class _SamplesScreenState extends State<SamplesScreen> {
           Samples2Data(),
           SamplesData(),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _samples
+              .add({
+                'title': "added title ${Random().nextInt(10000)}",
+                'body': "added body ${Random().nextInt(10000)}",
+              })
+              .then((value) => print("add data"))
+              .catchError((error) => print("Failed to add user: $error"));
+        },
+        tooltip: 'add sample data',
+        child: const Icon(Icons.add),
       ),
     );
   }
