@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sampleflutterfirebaseauth/samples_screen.dart';
+import 'package:sampleflutterfirebaseauth/firestore_data_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,9 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             if (_isLoading) const CircularProgressIndicator(),
-            // const Text(
-            //   'You have pushed the button this many times:',
-            // ),
             if (_isLogin)
               Column(
                 children: [
@@ -80,16 +77,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Text("ログアウト"),
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return SamplesScreen();
-                            },
-                          ),
-                        );
-                      },
-                      child: Text("firestoreデータを参照する"))
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return FirestoreDataScreen();
+                          },
+                        ),
+                      );
+                    },
+                    child: Text("firestoreデータを参照する"),
+                  ),
+                  OutlineButton(
+                    onPressed: () {},
+                    child: Text("cloud storageのデータを参照する"),
+                  )
                 ],
               ),
             if (!_isLogin)

@@ -4,15 +4,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class SamplesScreen extends StatefulWidget {
-  const SamplesScreen({Key? key}) : super(key: key);
+class FirestoreDataScreen extends StatefulWidget {
+  const FirestoreDataScreen({Key? key}) : super(key: key);
 
   @override
-  State<SamplesScreen> createState() => _SamplesScreenState();
+  State<FirestoreDataScreen> createState() => _FirestoreDataScreenState();
 }
 
-class _SamplesScreenState extends State<SamplesScreen> {
-  CollectionReference _samples =
+class _FirestoreDataScreenState extends State<FirestoreDataScreen> {
+  final CollectionReference _samples =
       FirebaseFirestore.instance.collection('samples');
 
   @override
