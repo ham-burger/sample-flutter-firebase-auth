@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sampleflutterfirebaseauth/cloud_storage_data_screen.dart';
 import 'package:sampleflutterfirebaseauth/firestore_data_screen.dart';
 
 Future<void> main() async {
@@ -89,7 +90,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Text("firestoreデータを参照する"),
                   ),
                   OutlineButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return CloudStorageDataScreen();
+                          },
+                        ),
+                      );
+                    },
                     child: Text("cloud storageのデータを参照する"),
                   )
                 ],
