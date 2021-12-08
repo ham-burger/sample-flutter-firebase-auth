@@ -35,6 +35,20 @@ class _CloudStorageDataScreenState extends State<CloudStorageDataScreen> {
                 }
                 return Text("no data");
               }),
+          FutureBuilder(
+            future: storage.ref().listAll(),
+            builder: (BuildContext context,
+                AsyncSnapshot<ListResult> asyncSnapshot) {
+              if (asyncSnapshot.hasError) {
+                return Text("error occuered!!");
+              }
+              if (asyncSnapshot.hasData) {
+                final length = asyncSnapshot.data?.items.length ?? 0;
+                return Text("data length = $length");
+              }
+              return Text("no data");
+            },
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
