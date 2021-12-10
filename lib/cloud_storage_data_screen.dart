@@ -4,6 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CloudStorageDataScreen extends StatefulWidget {
   const CloudStorageDataScreen({Key? key}) : super(key: key);
@@ -15,6 +17,9 @@ class CloudStorageDataScreen extends StatefulWidget {
 class _CloudStorageDataScreenState extends State<CloudStorageDataScreen> {
   FirebaseStorage storage = FirebaseStorage.instance;
 
+  var _isLoading = false;
+  File? file;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +28,9 @@ class _CloudStorageDataScreenState extends State<CloudStorageDataScreen> {
       ),
       body: Column(
         children: [
-          FutureBuilder(
+          if (_isLoading) CircularProgressIndicator(),
+          if (file == null)
+            FutureBuilder(
               future: storage.ref("sample.jpeg").getDownloadURL(),
               builder:
                   (BuildContext context, AsyncSnapshot<String> asyncSnapshot) {
@@ -34,7 +41,8 @@ class _CloudStorageDataScreenState extends State<CloudStorageDataScreen> {
                   return Image.network(asyncSnapshot.data!);
                 }
                 return Text("no data");
-              }),
+              },
+            ),
           FutureBuilder(
             future: storage.ref().listAll(),
             builder: (BuildContext context,
@@ -49,14 +57,30 @@ class _CloudStorageDataScreenState extends State<CloudStorageDataScreen> {
               return Text("no data");
             },
           ),
+          if (file != null) Image.file(file!)
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'upload file',
-        child: const Icon(Icons.add),
-        onPressed: () {
-          _upload();
-        },
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            tooltip: 'upload file',
+            child: const Icon(Icons.add),
+            onPressed: () {
+              _upload();
+            },
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          FloatingActionButton(
+            tooltip: 'download file',
+            child: const Icon(Icons.download),
+            onPressed: () async {
+              await _download();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -73,11 +97,55 @@ class _CloudStorageDataScreenState extends State<CloudStorageDataScreen> {
     }
     File file = File(pickerFile.path);
     try {
-      await storage
-          .ref(DateTime.now().microsecondsSinceEpoch.toString() + ".jpg")
-          .putFile(file);
+      setState(() {
+        _isLoading = true;
+      });
+      await storage.ref(fileName).putFile(file);
     } catch (e) {
       print(e);
-    } finally {}
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  String get fileName =>
+      DateTime.now().microsecondsSinceEpoch.toString() + ".jpg";
+
+  Future<void> _download() async {
+    var status = await Permission.storage.status;
+    print(status);
+    if (status == PermissionStatus.denied) {
+      // 一度もリクエストしてないので権限のリクエスト.
+      status = await Permission.storage.request();
+    }
+    Directory? appDocDir = await getExternalStorageDirectory();
+    print("appDocDir is null " + (appDocDir == null).toString());
+    if (appDocDir == null) return;
+    File downloadToFile = File(appDocDir.path + "/" + fileName);
+
+    if (downloadToFile.existsSync()) await downloadToFile.delete();
+
+    print(downloadToFile.path);
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final ref = storage.ref('sample.jpeg');
+      await ref.writeToFile(downloadToFile);
+      print("file downloaded");
+    } on FirebaseException catch (e) {
+      // e.g, e.code == 'canceled'
+      print("error occured!");
+    } finally {
+      final file = File(downloadToFile.path);
+      print("file exist : ${file.existsSync()}");
+
+      this.file = file;
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 }
